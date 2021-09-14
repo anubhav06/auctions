@@ -1,0 +1,82 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <h2> <strong>{{listing.title}}</strong> </h2>
+
+    <div class="rowListings">
+        <form action="{% url 'index' %}" method="POST">
+            {% csrf_token %}
+
+                <div class="column-left" style="width: 45%;">
+                    <img src="{{listing.photo}}" alt="Listing Image" style="height: auto; width: 20rem;"><br>
+                </div>
+                
+                <div class="column-right" style="width: 55%;">
+    
+                    {{listing.description}}
+                    <h4> <strong> ${{quote}}</strong> </h4>
+                    
+                    {% if listing.active %}
+
+                        <p> {{count}} bid(s) so far. Your bid is the current bid. </p>
+                        <div class="form-group">
+                            <input class="form-control" type="number" name="bid" placeholder="Bid" min="{{listing.price}}">
+                        </div>
+                        <input class="btn btn-primary" type="submit" name="submitBtn" value="Place Bid">
+                        <input class="btn btn-secondary" type="submit" name="watchlistBtn" value="{{message}}">
+                
+                        {% if user == listing.user %}
+                            <input class="btn btn-danger" type="submit" name="closeBtn" value="Close Auction">
+                        {% endif %}
+                    
+                    {% else %}
+
+                        <h5> Bidding sold to: <strong>{{winner}}</strong> </h5> <br>
+                        
+                        {% if user == winner %}
+                            <h4> <strong>You have won this bidding! </strong> </h4>
+                        {% endif %}
+                    {% endif %}
+        
+                </div>
+        </form>
+    </div>
+    <br>
+    
+    <h4> <strong> Comments </strong> </h4>  
+    <div class="rowListings">      
+        <div class="column-left" style="width: 50%;">
+            {% if comments|length > 0 %}
+                {% for comment in comments %}
+                <div>
+                    <strong> {{comment.commenter}} </strong> :  {{comment.comment}} 
+                </div>
+                {% endfor %}
+            {% else %}
+                <div>No comments so far</div>
+            {% endif %}
+            
+        </div>
+
+        <div class="column-right" style="width: 50%;">
+            <!-- Form to add a comment -->
+            {% if listing.active %}
+                {% if user.is_authenticated %}
+                    <form action="{% url 'listing' listing.id %}" method="POST">
+                        {% csrf_token %}
+                        <h5> Add your comment: </h5>
+                        <div class="form-group">
+                            <input class="form-control" type="text" name="comment" placeholder="Comment" maxlength="99">
+                        </div>
+                        <input class="btn btn-primary" type="submit" name="commentBtn" value="Add Comment">
+                    </form>
+                {% else %}
+                    <h5> Sign in to add a comment </h5>       
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+            
+    
+{% endblock %}
